@@ -28,7 +28,7 @@ This library provides a horizontal menu bar. You can use it for apps that have s
   s.source           = { :git => 'https://github.com/p0dee/PDEMenuControl.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/p0dee'
 
-  s.swift_version    = '4.0'
+  s.swift_version    = '4.2'
   s.ios.deployment_target = '10.0'
 
   s.source_files = 'PDEMenuControl/Classes/**/*'
