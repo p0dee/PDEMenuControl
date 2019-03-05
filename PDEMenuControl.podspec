@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'PDEMenuControl'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of PDEMenuControl.'
+  s.summary          = 'This library provides a horizontal menu bar. You can use it for apps that have swipe-gesture-based navigations.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+This library provides a horizontal menu bar. You can use it for apps that have swipe-gesture-based navigations. This menu bar contains a selection indicator that animates beautifully and uniquely, also return haptic feedbacks when menu bar changes its selection, that makes clarify user's control and provides intuitive experiences.
                        DESC
 
   s.homepage         = 'https://github.com/p0dee/PDEMenuControl'
@@ -26,9 +26,10 @@ TODO: Add long description of the pod here.
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'p0dee' => 't.takeshi.uc@gmail.com' }
   s.source           = { :git => 'https://github.com/p0dee/PDEMenuControl.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.social_media_url = 'https://twitter.com/p0dee'
 
-  s.ios.deployment_target = '8.0'
+  s.swift_version    = '4.0'
+  s.ios.deployment_target = '10.0'
 
   s.source_files = 'PDEMenuControl/Classes/**/*'
   
