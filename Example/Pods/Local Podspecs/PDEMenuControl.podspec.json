@@ -1,0 +1,22 @@
+{
+  "name": "PDEMenuControl",
+  "version": "0.1.0",
+  "summary": "A short description of PDEMenuControl.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/p0dee/PDEMenuControl",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "p0dee": "t.takeshi.uc@gmail.com"
+  },
+  "source": {
+    "git": "https://github.com/p0dee/PDEMenuControl.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "PDEMenuControl/Classes/**/*"
+}

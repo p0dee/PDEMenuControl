@@ -1,0 +1,6 @@
+framework module PDEMenuControl {
+  umbrella header "PDEMenuControl-umbrella.h"
+
+  export *
+  module * { export * }
+}

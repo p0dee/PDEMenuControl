@@ -1,0 +1,16 @@
+PODS:
+  - PDEMenuControl (0.1.0)
+
+DEPENDENCIES:
+  - PDEMenuControl (from `../`)
+
+EXTERNAL SOURCES:
+  PDEMenuControl:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  PDEMenuControl: f6ce2e4c20377b36e8bc457f04833cad7b20fd8d
+
+PODFILE CHECKSUM: 56969b83d7f2d36074a28354bb6d39e4001f3d82
+
+COCOAPODS: 1.6.1
