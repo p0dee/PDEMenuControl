@@ -1,0 +1,6 @@
+use_frameworks!
+target 'PDEMenuControl_Tests' do
+  pod 'PDEMenuControl', :path => '../'
+  
+  
+end
