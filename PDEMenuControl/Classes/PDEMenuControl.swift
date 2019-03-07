@@ -15,15 +15,19 @@ public class PDEMenuControl: UIControl {
         public var indicatorSidePadding: CGFloat
         public var fillsAllItemsInBounds: Bool
         public var fillsItemsEqually: Bool
+        public var labelAttributes: [NSAttributedString.Key : Any]
+        public var indicatorFillColor: UIColor
         
-        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool) {
+        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor) {
             self.itemSpacing = itemSpacing
             self.indicatorSidePadding = indicatorSidePadding
             self.fillsAllItemsInBounds = fillsAllItemsInBounds
             self.fillsItemsEqually = fillsItemsEqually
+            self.labelAttributes = labelAttributes
+            self.indicatorFillColor = indicatorFillColor
         }
         
-        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false)
+        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
     }
     
     public enum LayoutMode {
@@ -112,7 +116,7 @@ public class PDEMenuControl: UIControl {
         super.layoutSubviews()
         updateMenuContentWidth()
         scrollView.frame = bounds.insetBy(dx: configure.indicatorSidePadding, dy: 0)
-        indicatorView.tintColor = UIColor(red: 0xf0/255.0, green: 0x91/255.0, blue: 0x99/255.0, alpha: 1.0)//f09199
+        indicatorView.tintColor = configure.indicatorFillColor
         indicatorView.image = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
         menuViewSnapshotMaskImageView.image = indicatorView.image
         DispatchQueue.main.async {
@@ -138,6 +142,7 @@ public class PDEMenuControl: UIControl {
     private func setUpViews() {
         clipsToBounds = true
         addSubview(scrollView)
+        menuView.labelAttributes = configure.labelAttributes
         menuView.stackView.distribution = configure.fillsItemsEqually ? .fillEqually : .fillProportionally
         menuView.stackView.spacing = configure.itemSpacing
         scrollView.addSubview(menuView)
@@ -199,6 +204,8 @@ private class MenuLabelsView: UIView {
         }
     }
     
+    var labelAttributes: [NSAttributedString.Key : Any]?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpViews()
@@ -221,8 +228,7 @@ private class MenuLabelsView: UIView {
         }
         for (index, item) in items.enumerated() {
             let label = commonLabel()
-            label.font = .systemFont(ofSize: 13)
-            label.text = item
+            label.attributedText = .init(string: item, attributes: labelAttributes)
             label.tag = tagForLabel(index: index)
             stackView.addArrangedSubview(label)
         }
