@@ -41,7 +41,7 @@ public class PDEMenuControl: UIControl {
     private let menuViewSnapshotImageView = UIImageView()
     private let menuViewSnapshotMaskImageView = UIImageView()
     
-    let configure: Config
+    let config: Config
     
     public var items: [String] = [] {
         didSet {
@@ -82,8 +82,8 @@ public class PDEMenuControl: UIControl {
             }
             let currentIdxRect: CGRect = menuView.labelFrame(forIndex: indexCache.current) ?? .zero
             let nearestIdxRect: CGRect = menuView.labelFrame(forIndex: nearest) ?? .zero
-            let indFr = indicatorFrameWidth(currentIndex: indexCache.current, rect: currentIdxRect, nearestIndex: nearest, rect: nearestIdxRect, elasticityMaxWidth: 15, value: value).insetBy(dx: -configure.indicatorSidePadding, dy: 0)
-            indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -configure.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
+            let indFr = indicatorFrameWidth(currentIndex: indexCache.current, rect: currentIdxRect, nearestIndex: nearest, rect: nearestIdxRect, elasticityMaxWidth: 15, value: value).insetBy(dx: -config.indicatorSidePadding, dy: 0)
+            indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
             menuViewSnapshotMaskImageView.frame = indicatorView.frame
             scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -80, dy: 0), animated: false)
         }
@@ -115,8 +115,8 @@ public class PDEMenuControl: UIControl {
     override public func layoutSubviews() {
         super.layoutSubviews()
         updateMenuContentWidth()
-        scrollView.frame = bounds.insetBy(dx: configure.indicatorSidePadding, dy: 0)
-        indicatorView.tintColor = configure.indicatorFillColor
+        scrollView.frame = bounds.insetBy(dx: config.indicatorSidePadding, dy: 0)
+        indicatorView.tintColor = config.indicatorFillColor
         indicatorView.image = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
         menuViewSnapshotMaskImageView.image = indicatorView.image
         DispatchQueue.main.async {
@@ -129,7 +129,7 @@ public class PDEMenuControl: UIControl {
     }
     
     public init(configure: Config) {
-        self.configure = configure
+        self.config = configure
         super.init(frame: .zero)
         setUpViews()
         setUpConstraints()
@@ -142,9 +142,9 @@ public class PDEMenuControl: UIControl {
     private func setUpViews() {
         clipsToBounds = true
         addSubview(scrollView)
-        menuView.labelAttributes = configure.labelAttributes
-        menuView.stackView.distribution = configure.fillsItemsEqually ? .fillEqually : .fillProportionally
-        menuView.stackView.spacing = configure.itemSpacing
+        menuView.labelAttributes = config.labelAttributes
+        menuView.stackView.distribution = config.fillsItemsEqually ? .fillEqually : .fillProportionally
+        menuView.stackView.spacing = config.itemSpacing
         scrollView.addSubview(menuView)
         scrollView.addSubview(indicatorBaseView)
         scrollView.clipsToBounds = false
@@ -166,7 +166,7 @@ public class PDEMenuControl: UIControl {
     
     private func updateMenuContentWidth() {
         let estimatedWidth: CGFloat
-        if configure.fillsAllItemsInBounds {
+        if config.fillsAllItemsInBounds {
             estimatedWidth = bounds.width
         } else {
             estimatedWidth = menuView.stackView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).width
