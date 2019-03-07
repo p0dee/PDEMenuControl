@@ -10,7 +10,7 @@ import UIKit
 
 public class PDEMenuControl: UIControl {
     
-    public struct Configure {
+    public struct Config {
         public var itemSpacing: CGFloat
         public var indicatorSidePadding: CGFloat
         public var fillsAllItemsInBounds: Bool
@@ -23,7 +23,7 @@ public class PDEMenuControl: UIControl {
             self.fillsItemsEqually = fillsItemsEqually
         }
         
-        public static let `default`: Configure = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false)
+        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false)
     }
     
     public enum LayoutMode {
@@ -37,7 +37,7 @@ public class PDEMenuControl: UIControl {
     private let menuViewSnapshotImageView = UIImageView()
     private let menuViewSnapshotMaskImageView = UIImageView()
     
-    let configure: Configure
+    let configure: Config
     
     public var items: [String] = [] {
         didSet {
@@ -124,7 +124,7 @@ public class PDEMenuControl: UIControl {
         return CGFloat(items.count)
     }
     
-    public init(configure: Configure) {
+    public init(configure: Config) {
         self.configure = configure
         super.init(frame: .zero)
         setUpViews()
