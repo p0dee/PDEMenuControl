@@ -11,10 +11,10 @@ import UIKit
 public class PDEMenuControl: UIControl {
     
     public struct Configure {
-        public let itemSpacing: CGFloat
-        public let indicatorSidePadding: CGFloat
-        public let fillsAllItemsInBounds: Bool
-        public let fillsItemsEqually: Bool
+        public var itemSpacing: CGFloat
+        public var indicatorSidePadding: CGFloat
+        public var fillsAllItemsInBounds: Bool
+        public var fillsItemsEqually: Bool
         
         public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool) {
             self.itemSpacing = itemSpacing
