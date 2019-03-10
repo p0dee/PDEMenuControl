@@ -15,19 +15,21 @@ public class PDEMenuControl: UIControl {
         public var indicatorSidePadding: CGFloat
         public var fillsAllItemsInBounds: Bool
         public var fillsItemsEqually: Bool
+        public var generatesHapticFeedback: Bool
         public var labelAttributes: [NSAttributedString.Key : Any]
         public var indicatorFillColor: UIColor
         
-        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor) {
+        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, generatesHapticFeedback: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor) {
             self.itemSpacing = itemSpacing
             self.indicatorSidePadding = indicatorSidePadding
             self.fillsAllItemsInBounds = fillsAllItemsInBounds
             self.fillsItemsEqually = fillsItemsEqually
+            self.generatesHapticFeedback = generatesHapticFeedback
             self.labelAttributes = labelAttributes
             self.indicatorFillColor = indicatorFillColor
         }
         
-        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
+        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
     }
     
     public enum LayoutMode {
@@ -92,7 +94,7 @@ public class PDEMenuControl: UIControl {
         didSet {
             let current = indexCache.current
             let nearest = Int(round(value))
-            if let latest = indexCache.latestNearest, latest != nearest {
+            if config.generatesHapticFeedback, let latest = indexCache.latestNearest, latest != nearest {
                 let haptic = UISelectionFeedbackGenerator()
                 haptic.selectionChanged()
             }
