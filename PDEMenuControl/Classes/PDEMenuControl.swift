@@ -68,6 +68,26 @@ public class PDEMenuControl: UIControl {
     
     private var indexCache: IndexCache = .initial
     
+    public var animatorParametersWithValue: ((_ oldValue: CGFloat, _ newValue: CGFloat) -> (duration: TimeInterval, timingParameters: UITimingCurveProvider)?)? = { old, new in
+        let gap = new - old
+        let leaps = abs(new - old) < 1 && round(new) != round(old)
+        let duration: TimeInterval = {
+            if leaps {
+                return 0.22
+            }
+            switch abs(gap) {
+            case 0..<0.2: return 0
+            case ..<0.5: return 0.2
+            default: return 0.4
+            }
+        }()
+        if duration > 0 {
+            return (duration, UISpringTimingParameters(dampingRatio: 1.0, initialVelocity: .zero))
+        } else {
+            return nil
+        }
+    }
+    
     public var value: CGFloat = .init(IndexCache.initial.current) {
         didSet {
             let current = indexCache.current
@@ -83,9 +103,21 @@ public class PDEMenuControl: UIControl {
             let currentIdxRect: CGRect = menuView.labelFrame(forIndex: indexCache.current) ?? .zero
             let nearestIdxRect: CGRect = menuView.labelFrame(forIndex: nearest) ?? .zero
             let indFr = indicatorFrameWidth(currentIndex: indexCache.current, rect: currentIdxRect, nearestIndex: nearest, rect: nearestIdxRect, elasticityMaxWidth: 15, value: value).insetBy(dx: -config.indicatorSidePadding, dy: 0)
-            indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
-            menuViewSnapshotMaskImageView.frame = indicatorView.frame
-            scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -80, dy: 0), animated: false)
+            
+            func updateFrames() {
+                indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
+                menuViewSnapshotMaskImageView.frame = indicatorView.frame
+                scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -80, dy: 0), animated: false)
+            }
+            if let paramsFunc = animatorParametersWithValue, let params = paramsFunc(oldValue, value) {
+                let animator = UIViewPropertyAnimator(duration: params.duration, timingParameters: params.timingParameters)
+                animator.addAnimations {
+                    updateFrames()
+                }
+                animator.startAnimation()
+            } else {
+                updateFrames()
+            }
         }
     }
     
