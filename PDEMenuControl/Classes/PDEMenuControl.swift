@@ -167,7 +167,7 @@ public class PDEMenuControl: UIControl {
     private func updateMenuContentWidth() {
         let estimatedWidth: CGFloat
         if config.fillsAllItemsInBounds {
-            estimatedWidth = bounds.width
+            estimatedWidth = bounds.width - config.indicatorSidePadding * 2
         } else {
             estimatedWidth = menuView.stackView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).width
             
