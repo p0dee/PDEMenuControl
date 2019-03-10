@@ -187,7 +187,8 @@ public class PDEMenuControl: UIControl {
         let index = menuView.stackView.arrangedSubviews.firstIndex {
             return $0.frame.contains(point)
         }
-        if index != nil {
+        if let index = index {
+            value = CGFloat(index)
             sendActions(for: .valueChanged)
         }
     }
