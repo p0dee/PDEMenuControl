@@ -104,7 +104,7 @@ public class PDEMenuControl: UIControl {
             }
             let currentIdxRect: CGRect = menuView.labelFrame(forIndex: indexCache.current) ?? .zero
             let nearestIdxRect: CGRect = menuView.labelFrame(forIndex: nearest) ?? .zero
-            let indFr = indicatorFrameWidth(currentIndex: indexCache.current, rect: currentIdxRect, nearestIndex: nearest, rect: nearestIdxRect, elasticityMaxWidth: 15, value: value).insetBy(dx: -config.indicatorSidePadding, dy: 0)
+            let indFr = indicatorFrameWidth(currentIndex: indexCache.current, rect: currentIdxRect, nearestIndex: nearest, rect: nearestIdxRect, elasticityMaxWidth: 30, value: value).insetBy(dx: -config.indicatorSidePadding, dy: 0)
             
             func updateFrames() {
                 indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
