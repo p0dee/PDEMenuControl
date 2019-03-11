@@ -154,6 +154,8 @@ public class PDEMenuControl: UIControl {
         indicatorView.image = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
         menuViewSnapshotMaskImageView.image = indicatorView.image
         DispatchQueue.main.async {
+            let latestValue = self.value
+            self.value = latestValue
             self.updateOverlayIndicatorMask()
         }
     }
