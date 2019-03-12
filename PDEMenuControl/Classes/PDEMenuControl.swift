@@ -8,6 +8,10 @@
 
 import UIKit
 
+public protocol PDEMenuControlDelegate: class {
+    func menuControl(_ menuControl: PDEMenuControl, didTapSelectionAt index: Int)
+}
+
 public class PDEMenuControl: UIControl {
     
     public struct Config {
@@ -69,6 +73,8 @@ public class PDEMenuControl: UIControl {
     }
     
     private var indexCache: IndexCache = .initial
+    
+    public weak var delegate: PDEMenuControlDelegate?
     
     public var animatorParametersWithValue: ((_ oldValue: CGFloat, _ newValue: CGFloat) -> (duration: TimeInterval, timingParameters: UITimingCurveProvider)?)? = { old, new in
         let gap = new - old
@@ -224,8 +230,7 @@ public class PDEMenuControl: UIControl {
             return $0.frame.contains(point)
         }
         if let index = index {
-            value = CGFloat(index)
-            sendActions(for: .valueChanged)
+            delegate?.menuControl(self, didTapSelectionAt: index)
         }
     }
     
