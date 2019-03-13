@@ -126,6 +126,7 @@ public class PDEMenuControl: UIControl {
             } else {
                 updateFrames()
             }
+            sendActions(for: .valueChanged)
         }
     }
     
