@@ -22,7 +22,8 @@ extension UIImage {
         ctx.drawPath(using: .fill)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return image?.stretchableImage(withLeftCapWidth: Int(height / 2), topCapHeight: 0)
+        let inset = height / 2
+        return image?.resizableImage(withCapInsets: .init(top: 0, left: inset, bottom: 0, right: inset))
     }
     
 }
