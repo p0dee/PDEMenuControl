@@ -23,6 +23,29 @@ public class PDEMenuControl: UIControl {
         public var labelAttributes: [NSAttributedString.Key : Any]
         public var indicatorFillColor: UIColor
         
+        public struct DynamicIndicatorGradientConfig {
+            
+            public typealias GradientStartEndColorsFunction = ((_ value: CGFloat) -> (start: UIColor, end: UIColor))
+            
+            public enum GradientAxis {
+                case horizontal, vertical
+            }
+            
+            public var axis: GradientAxis
+            public var startEndColors: GradientStartEndColorsFunction
+            public var animationTimingFunction: CAMediaTimingFunction
+            
+            public init(axis: GradientAxis, animationTimingFunction: CAMediaTimingFunction, startEndColors: @escaping GradientStartEndColorsFunction) {
+                self.axis = axis
+                self.startEndColors = startEndColors
+                self.animationTimingFunction = animationTimingFunction
+            }
+            
+            public static let `default`: DynamicIndicatorGradientConfig = .init(axis: .vertical, animationTimingFunction: CAMediaTimingFunction(name: .easeOut)) { _ in (.gray, UIColor.darkGray) }
+        }
+        
+        public var dynamicIndicatorGradientConfig: DynamicIndicatorGradientConfig?
+        
         public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, generatesHapticFeedback: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor) {
             self.itemSpacing = itemSpacing
             self.indicatorSidePadding = indicatorSidePadding
@@ -31,6 +54,7 @@ public class PDEMenuControl: UIControl {
             self.generatesHapticFeedback = generatesHapticFeedback
             self.labelAttributes = labelAttributes
             self.indicatorFillColor = indicatorFillColor
+            self.dynamicIndicatorGradientConfig = .default
         }
         
         public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
@@ -46,6 +70,10 @@ public class PDEMenuControl: UIControl {
     private let indicatorView = UIImageView()
     private let menuViewSnapshotImageView = UIImageView()
     private let menuViewSnapshotMaskImageView = UIImageView()
+    //dynamic gradient
+    private var indicatorDynamicGradientView: UIView?
+    private var indicatorDynamicGradientLayer: CAGradientLayer?
+    private var indicatorDynamicGradientMask: UIImageView?
     
     let config: Config
     
@@ -116,6 +144,7 @@ public class PDEMenuControl: UIControl {
                 indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
                 menuViewSnapshotMaskImageView.frame = indicatorView.frame
                 scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -80, dy: 0), animated: false)
+                updateGradientFrame()
             }
             if let paramsFunc = animatorParametersWithValue, let params = paramsFunc(oldValue, value) {
                 let animator = UIViewPropertyAnimator(duration: params.duration, timingParameters: params.timingParameters)
@@ -160,10 +189,14 @@ public class PDEMenuControl: UIControl {
         indicatorView.tintColor = config.indicatorFillColor
         indicatorView.image = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
         menuViewSnapshotMaskImageView.image = indicatorView.image
+        indicatorDynamicGradientMask?.image = indicatorView.image
         DispatchQueue.main.async {
             let latestValue = self.value
             self.value = latestValue
             self.updateOverlayIndicatorMask()
+        }
+        if let gradView = indicatorDynamicGradientView, let gradLayer = indicatorDynamicGradientLayer {
+            gradLayer.frame = gradView.bounds
         }
     }
     
@@ -175,6 +208,9 @@ public class PDEMenuControl: UIControl {
         self.config = configure
         super.init(frame: .zero)
         setUpViews()
+        if let gradConfig = configure.dynamicIndicatorGradientConfig {
+            setUpDynamicGradientView(config: gradConfig)
+        }
         setUpConstraints()
     }
     
@@ -184,6 +220,7 @@ public class PDEMenuControl: UIControl {
     
     private func setUpViews() {
         clipsToBounds = true
+        scrollView.delegate = self
         addSubview(scrollView)
         menuView.labelAttributes = config.labelAttributes
         menuView.stackView.distribution = config.fillsItemsEqually ? .fillEqually : .fillProportionally
@@ -202,6 +239,52 @@ public class PDEMenuControl: UIControl {
         //tap gesture
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapMenu(gesture:)))
         scrollView.addGestureRecognizer(tap)
+    }
+    
+    private func setUpDynamicGradientView(config: Config.DynamicIndicatorGradientConfig) {
+        let gradView = UIView()
+        gradView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        gradView.frame = bounds
+        let gradLayer = CAGradientLayer()
+        gradLayer.fillMode = .removed
+        gradLayer.locations = [NSNumber(value: 0), NSNumber(value: 1)]
+        insertSubview(gradView, belowSubview: scrollView)
+        let gradMask = UIImageView()
+        insertSubview(gradMask, belowSubview: scrollView)
+        gradView.layer.addSublayer(gradLayer)
+        gradView.mask = gradMask
+        indicatorDynamicGradientView = gradView
+        indicatorDynamicGradientLayer = gradLayer
+        indicatorDynamicGradientMask = gradMask
+    }
+    
+    private func updateGradientFrame() {
+        guard let layer = indicatorDynamicGradientLayer, let mask = indicatorDynamicGradientMask else {
+            return
+        }
+        guard let fr = indicatorView.superview?.convert(indicatorView.frame, to: self) else {
+            return
+        }
+        guard let cfg = config.dynamicIndicatorGradientConfig else {
+            return
+        }
+        let (startClr, endClr) = cfg.startEndColors(value)
+        mask.frame = fr
+        let start = fr.minX / bounds.width
+        let end = fr.maxX / bounds.width
+        CATransaction.begin()
+        CATransaction.setAnimationTimingFunction(cfg.animationTimingFunction)
+        switch cfg.axis {
+        case .horizontal:
+            layer.startPoint = .init(x: start, y: 0)
+            layer.endPoint = .init(x: end, y: 0)
+        case .vertical:
+            layer.startPoint = .init(x: 0, y: 0)
+            layer.endPoint = .init(x: 0, y: 1)
+        }
+        
+        layer.colors = [startClr.cgColor, endClr.cgColor]
+        CATransaction.commit()
     }
     
     private func setUpConstraints() {
@@ -233,6 +316,17 @@ public class PDEMenuControl: UIControl {
         if let index = index {
             delegate?.menuControl(self, didTapSelectionAt: index)
         }
+    }
+    
+}
+
+extension PDEMenuControl: UIScrollViewDelegate {
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if config.dynamicIndicatorGradientConfig == nil {
+            return
+        }
+        updateGradientFrame()
     }
     
 }
