@@ -58,6 +58,19 @@ open class PDEMenuControl: UIControl {
         }
         
         public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
+        
+        //internal
+        enum IndicatorFillMode {
+            case singleColor, gradient
+        }
+        
+        var indicatorFillMode: IndicatorFillMode {
+            if dynamicIndicatorGradientConfig != nil {
+                return .gradient
+            } else {
+                return .singleColor
+            }
+        }
     }
     
     public enum LayoutMode {
@@ -186,10 +199,12 @@ open class PDEMenuControl: UIControl {
         super.layoutSubviews()
         updateMenuContentWidth()
         scrollView.frame = bounds.insetBy(dx: config.indicatorSidePadding, dy: 0)
-        indicatorView.tintColor = config.indicatorFillColor
-        indicatorView.image = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
+        let indImage = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
+        indicatorView.image = indImage
         menuViewSnapshotMaskImageView.image = indicatorView.image
-        indicatorDynamicGradientMask?.image = indicatorView.image
+        if config.indicatorFillMode == .gradient {
+            indicatorDynamicGradientMask?.image = indicatorView.image
+        }
         DispatchQueue.main.async {
             let latestValue = self.value
             self.value = latestValue
@@ -229,6 +244,12 @@ open class PDEMenuControl: UIControl {
         scrollView.addSubview(indicatorBaseView)
         scrollView.clipsToBounds = false
         scrollView.showsHorizontalScrollIndicator = false
+        indicatorView.tintColor = {
+            switch config.indicatorFillMode {
+            case .singleColor:  return config.indicatorFillColor
+            case .gradient:     return .clear
+            }
+        }()
         indicatorBaseView.addSubview(indicatorView)
         menuViewSnapshotImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         menuViewSnapshotImageView.frame = indicatorBaseView.bounds
