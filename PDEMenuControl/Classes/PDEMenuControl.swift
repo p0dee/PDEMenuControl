@@ -12,7 +12,7 @@ public protocol PDEMenuControlDelegate: class {
     func menuControl(_ menuControl: PDEMenuControl, didTapSelectionAt index: Int)
 }
 
-public class PDEMenuControl: UIControl {
+open class PDEMenuControl: UIControl {
     
     public struct Config {
         public var itemSpacing: CGFloat
@@ -182,7 +182,7 @@ public class PDEMenuControl: UIControl {
         return .init(x: x, y: 0, width: w, height: r1.height)
     }
     
-    override public func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         updateMenuContentWidth()
         scrollView.frame = bounds.insetBy(dx: config.indicatorSidePadding, dy: 0)
@@ -214,7 +214,7 @@ public class PDEMenuControl: UIControl {
         setUpConstraints()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
