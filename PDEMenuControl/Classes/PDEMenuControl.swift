@@ -335,6 +335,7 @@ open class PDEMenuControl: UIControl {
             return $0.frame.contains(point)
         }
         if let index = index {
+            value = CGFloat(index)
             delegate?.menuControl(self, didTapSelectionAt: index)
         }
     }
