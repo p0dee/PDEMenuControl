@@ -337,7 +337,16 @@ open class PDEMenuControl: UIControl {
                 }()
                 var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0
                 bgClr.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
-                return UIColor(hue: h, saturation: min(1.0, s + 0.5), brightness: b - 0.4, alpha: 1)
+                let isGrayScale: Bool = {
+                    if h != 0 {
+                        return false
+                    }
+                    var r: CGFloat = 0, g: CGFloat = 0, bl: CGFloat = 0
+                    bgClr.getRed(&r, green: &g, blue: &bl, alpha: nil)
+                    return r == g && g == b
+                }()
+                let newS = isGrayScale ? 0 : min(1.0, s + 0.5)
+                return UIColor(hue: h, saturation: newS, brightness: b - 0.4, alpha: 1)
             }
         }()
         if menuViewSnapshotImageView.tintColor == clr {
