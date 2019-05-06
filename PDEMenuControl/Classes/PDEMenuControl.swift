@@ -59,7 +59,7 @@ open class PDEMenuControl: UIControl {
             self.makesHighlightedTitleColorVibrant = makesHighlightedTitleColorVibrant
         }
         
-        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0), makesHighlightedTitleColorVibrant: true)
+        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0), makesHighlightedTitleColorVibrant: false)
         
         //internal
         enum IndicatorFillMode {
