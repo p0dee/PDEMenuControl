@@ -22,6 +22,7 @@ open class PDEMenuControl: UIControl {
         public var generatesHapticFeedback: Bool
         public var labelAttributes: [NSAttributedString.Key : Any]
         public var indicatorFillColor: UIColor
+        public var makesHighlightedTitleColorVibrant: Bool
         
         public struct DynamicIndicatorGradientConfig {
             
@@ -46,7 +47,7 @@ open class PDEMenuControl: UIControl {
         
         public var dynamicIndicatorGradientConfig: DynamicIndicatorGradientConfig?
         
-        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, generatesHapticFeedback: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor) {
+        public init(itemSpacing: CGFloat, indicatorSidePadding: CGFloat, fillsAllItemsInBounds: Bool, fillsItemsEqually: Bool, generatesHapticFeedback: Bool, labelAttributes: [NSAttributedString.Key : Any], indicatorFillColor: UIColor, makesHighlightedTitleColorVibrant: Bool) {
             self.itemSpacing = itemSpacing
             self.indicatorSidePadding = indicatorSidePadding
             self.fillsAllItemsInBounds = fillsAllItemsInBounds
@@ -55,13 +56,21 @@ open class PDEMenuControl: UIControl {
             self.labelAttributes = labelAttributes
             self.indicatorFillColor = indicatorFillColor
             self.dynamicIndicatorGradientConfig = nil
+            self.makesHighlightedTitleColorVibrant = makesHighlightedTitleColorVibrant
         }
         
-        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0))
+        public static let `default`: Config = .init(itemSpacing: 20, indicatorSidePadding: 12, fillsAllItemsInBounds: false, fillsItemsEqually: false, generatesHapticFeedback: true, labelAttributes: [:], indicatorFillColor: .init(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0), makesHighlightedTitleColorVibrant: true)
         
         //internal
         enum IndicatorFillMode {
             case singleColor, gradient
+        }
+        enum HighlightedTitleColorMode {
+            case alwaysWhite, vibrantWithBakcgroundColor
+        }
+        
+        var highlightedTitleColorMode: HighlightedTitleColorMode {
+            return makesHighlightedTitleColorVibrant ? .vibrantWithBakcgroundColor : .alwaysWhite
         }
         
         var indicatorFillMode: IndicatorFillMode {
@@ -156,8 +165,10 @@ open class PDEMenuControl: UIControl {
             func updateFrames() {
                 indicatorView.frame = indFr.intersection(CGRect(origin: .zero, size: scrollView.contentSize).insetBy(dx: -config.indicatorSidePadding, dy: 0)) //エッジからさらに奥にスクロールした際にインジケータが見切れないようにするため
                 menuViewSnapshotMaskImageView.frame = indicatorView.frame
-                scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -80, dy: 0), animated: false)
-                updateGradientFrame()
+                let sideInset = (scrollView.bounds.width - indicatorView.bounds.width - scrollView.contentInset.right - scrollView.contentInset.left) / 2
+                scrollView.scrollRectToVisible(indicatorView.frame.insetBy(dx: -sideInset, dy: 0), animated: false)
+                updateIndicatorGradient() //TODO: incorrect calling due to updating not only frames
+                updateHighlightedTitleColor() //TODO: incorrect calling due to updating not only frames
             }
             if let paramsFunc = animatorParametersWithValue, let params = paramsFunc(oldValue, value) {
                 let animator = UIViewPropertyAnimator(duration: params.duration, timingParameters: params.timingParameters)
@@ -201,7 +212,11 @@ open class PDEMenuControl: UIControl {
         scrollView.frame = bounds.insetBy(dx: config.indicatorSidePadding, dy: 0)
         let indImage = UIImage.strechableRoundedRect(height: menuView.bounds.height)?.withRenderingMode(.alwaysTemplate)
         indicatorView.image = indImage
-        menuViewSnapshotMaskImageView.image = indicatorView.image
+        if #available(iOS 11.0, *) {
+            menuViewSnapshotMaskImageView.image = indicatorView.image
+        } else {
+            //DO NOTHING (snapshot views don't work correctly on iOS 10.X)
+        }
         if config.indicatorFillMode == .gradient {
             indicatorDynamicGradientMask?.image = indicatorView.image
         }
@@ -279,7 +294,7 @@ open class PDEMenuControl: UIControl {
         indicatorDynamicGradientMask = gradMask
     }
     
-    private func updateGradientFrame() {
+    private func updateIndicatorGradient() {
         guard let layer = indicatorDynamicGradientLayer, let mask = indicatorDynamicGradientMask else {
             return
         }
@@ -306,6 +321,32 @@ open class PDEMenuControl: UIControl {
         
         layer.colors = [startClr.cgColor, endClr.cgColor]
         CATransaction.commit()
+    }
+    
+    private func updateHighlightedTitleColor(animated: Bool = true) {
+        let clr: UIColor = {
+            switch config.highlightedTitleColorMode {
+            case .alwaysWhite:
+                return .white
+            case .vibrantWithBakcgroundColor:
+                let bgClr: UIColor = {
+                    switch config.indicatorFillMode {
+                    case .singleColor: return config.indicatorFillColor
+                    case .gradient:    return config.dynamicIndicatorGradientConfig?.startEndColors(value).start ?? .white
+                    }
+                }()
+                var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0
+                bgClr.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
+                return UIColor(hue: h, saturation: min(1.0, s + 0.5), brightness: b - 0.4, alpha: 1)
+            }
+        }()
+        if menuViewSnapshotImageView.tintColor == clr {
+            return
+        }
+        let animator = UIViewPropertyAnimator(duration: 0.1, dampingRatio: 1.0) {
+            self.menuViewSnapshotImageView.tintColor = clr
+        }
+        animator.startAnimation()
     }
     
     private func setUpConstraints() {
@@ -348,7 +389,8 @@ extension PDEMenuControl: UIScrollViewDelegate {
         if config.dynamicIndicatorGradientConfig == nil {
             return
         }
-        updateGradientFrame()
+        updateIndicatorGradient()
+        updateHighlightedTitleColor()
     }
     
 }
