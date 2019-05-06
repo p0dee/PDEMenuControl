@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PDEMenuControl'
-  s.version          = '0.1.9'
+  s.version          = '0.1.10'
   s.summary          = 'This library provides a horizontal menu bar. You can use it for apps that have swipe-gesture-based navigations.'
 
 # This description is used to generate tags and improve search results.
