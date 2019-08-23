@@ -5,9 +5,15 @@
 [![License](https://img.shields.io/cocoapods/l/PDEMenuControl.svg?style=flat)](https://cocoapods.org/pods/PDEMenuControl)
 [![Platform](https://img.shields.io/cocoapods/p/PDEMenuControl.svg?style=flat)](https://cocoapods.org/pods/PDEMenuControl)
 
+PDEMenuControl provides a horizontal menu bar. You can use it for apps that have swipe-gesture-based navigations. PDEMenuControl contains a selection indicator that animates beautifully and uniquely, also return haptic feedbacks when menu changes its selection, that makes clarify user's control and make intuitive experiences possible.
+
 ## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+![Example 1](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example1.gif "example 1")
+Simple example, uses only single color.
+
+![Example 2](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example2.gif "example 2")
+You can even implement menus has multi-color.
 
 ## Requirements
 
