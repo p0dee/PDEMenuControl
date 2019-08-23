@@ -9,10 +9,10 @@ PDEMenuControl provides a horizontal menu bar. You can use it for apps that have
 
 ## Example
 
-![Example 1](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example1.gif "example 1")
+![Example 1](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example1.gif "example 1")  
 Simple example, uses only single color.
 
-![Example 2](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example2.gif "example 2")
+![Example 2](https://raw.githubusercontent.com/p0dee/PDEMenuControl/master/example2.gif "example 2")  
 You can even implement menus has multi-color.
 
 ## Requirements
